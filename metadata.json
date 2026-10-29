@@ -1,0 +1,6 @@
+{
+  "name": "CurriculaPro Academic Specification & Review Portal",
+  "description": "Institutional course curriculum specification, CO-PO-PSO matrix mapping, and academic review portal built to Academic Collegiate Standards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,67 @@
+/* Academic Collegiate Standard - Dedicated Stylesheet */
+
+:root {
+  --color-primary: #001238;
+  --color-primary-container: #0f2756;
+  --color-on-primary-container: #7b8fc5;
+  --color-surface: #faf8ff;
+  --color-surface-dim: #d2d9f4;
+  --color-secondary: #515f74;
+  --color-outline: #757780;
+  --color-outline-variant: #c5c6d0;
+  --color-error: #ba1a1a;
+  --color-valid-text: #15803d;
+  --color-valid-bg: #dcfce7;
+  --color-pending-text: #b45309;
+  --color-pending-bg: #fef3c7;
+  --color-violation-text: #b91c1c;
+  --color-violation-bg: #fee2e2;
+}
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0f172a;
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'IBM Plex Serif', Georgia, Cambria, 'Times New Roman', serif;
+}
+
+.tabular-nums, [data-tabular] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Zero-Pill & Micro-labels discipline */
+.collegiate-label-sm {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.collegiate-label-md {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  letter-spacing: 0.01em;
+}
+
+/* Hairline dividers and cards */
+.academic-card {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+}
+
+.academic-panel {
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}

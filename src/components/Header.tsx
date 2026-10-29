@@ -1,5 +1,5 @@
 import { ReviewStatus, UserRole } from '../types';
-import { Shield, Sparkles, Printer, Lock, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Upload, Sparkles, Printer, Lock, CheckCircle2, Clock, AlertCircle, RotateCcw } from 'lucide-react';
 
 interface HeaderProps {
   currentRole: UserRole;
@@ -7,6 +7,8 @@ interface HeaderProps {
   status: ReviewStatus;
   onOpenSettings: () => void;
   onOpenExport: () => void;
+  onOpenUpload: () => void;
+  onResetCourse: () => void;
   courseCode: string;
 }
 
@@ -16,6 +18,8 @@ export default function Header({
   status,
   onOpenSettings,
   onOpenExport,
+  onOpenUpload,
+  onResetCourse,
   courseCode,
 }: HeaderProps) {
   const getStatusBadge = () => {
@@ -72,7 +76,7 @@ export default function Header({
                   CurriculaPro
                 </span>
                 <span className="text-[11px] font-mono font-medium px-1.5 py-0.5 bg-[#F1F5F9] border border-[#E2E8F0] rounded text-[#334155]">
-                  {courseCode}
+                  {courseCode || 'NEW COURSE'}
                 </span>
               </div>
               <p className="text-[11px] text-[#64748B] tracking-tight">
@@ -120,7 +124,27 @@ export default function Header({
         </div>
 
         {/* Zone 3: Header Actions */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onOpenUpload}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#0F2756] hover:bg-[#1E3A8A] rounded transition-colors"
+            title="Upload syllabus documents, files, or JSON course specifications"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload Course File</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onResetCourse}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#64748B] hover:text-[#B91C1C] hover:bg-[#FEE2E2] rounded transition-colors border border-transparent hover:border-[#FECACA]"
+            title="Clear all course data and start fresh"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Clear Data</span>
+          </button>
+
           <button
             type="button"
             onClick={onOpenSettings}
@@ -134,7 +158,7 @@ export default function Header({
           <button
             type="button"
             onClick={onOpenExport}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#0F2756] hover:bg-[#1E3A8A] rounded transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#0F172A] bg-white border border-[#CBD5E1] hover:bg-[#F1F5F9] rounded transition-colors"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Export Gazette</span>

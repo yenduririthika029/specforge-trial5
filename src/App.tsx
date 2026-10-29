@@ -11,27 +11,29 @@ import {
   CourseOutcome,
   MatrixValue,
 } from './types';
-import { getCourseSpecification, saveCourseSpecification } from './api';
+import { getCourseSpecification, saveCourseSpecification, resetCourseSpecification } from './api';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import RightDrawer from './components/RightDrawer';
 import Settings from './Settings';
 import ExportGazetteModal from './components/ExportGazetteModal';
+import UploadCourseModal from './components/UploadCourseModal';
 import BasicDetailsScreen from './components/screens/BasicDetailsScreen';
 import SyllabusUnitsScreen from './components/screens/SyllabusUnitsScreen';
 import AssessmentScreen from './components/screens/AssessmentScreen';
 import OutcomeMatrixScreen from './components/screens/OutcomeMatrixScreen';
 import ReviewApprovalsScreen from './components/screens/ReviewApprovalsScreen';
-import { ArrowLeft, ArrowRight, Save, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Check, Upload, FilePlus2 } from 'lucide-react';
 
 export default function App() {
   const [courseData, setCourseData] = useState<FullCourseSpecification>(() => getCourseSpecification());
   const [currentRole, setCurrentRole] = useState<UserRole>('Author');
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([1, 2, 3]);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([1]);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
+  const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
   const [saveToast, setSaveToast] = useState<boolean>(false);
 
   // Sync state changes with persistence
@@ -44,6 +46,18 @@ export default function App() {
     saveCourseSpecification(courseData);
     setSaveToast(true);
     setTimeout(() => setSaveToast(false), 2000);
+  };
+
+  const handleResetToBlank = () => {
+    const blank = resetCourseSpecification();
+    setCourseData(blank);
+    setCompletedSteps([1]);
+    setCurrentStep(1);
+  };
+
+  const handleApplyUploadedCourse = (course: FullCourseSpecification) => {
+    updateCourseData(course);
+    setCompletedSteps([1, 2, 3]);
   };
 
   // Step completions
@@ -167,6 +181,8 @@ export default function App() {
         status={courseData.status}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenExport={() => setIsExportOpen(true)}
+        onOpenUpload={() => setIsUploadOpen(true)}
+        onResetCourse={handleResetToBlank}
         courseCode={courseData.metadata.courseCode}
       />
 
@@ -186,6 +202,36 @@ export default function App() {
         {/* Central Flexible Canvas (pinned 960px to 1200px) */}
         <main className="flex-1 min-w-0 p-8 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-8">
+            {/* Quick Upload Intake Banner if course details are not yet populated */}
+            {!courseData.metadata.courseCode && !courseData.metadata.courseTitle && (
+              <div className="bg-white border-2 border-dashed border-[#CBD5E1] rounded p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xs">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded bg-[#EAEDFF] text-[#0F2756] flex items-center justify-center shrink-0 mt-0.5">
+                    <FilePlus2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-sm font-bold text-[#0F172A]">
+                      Ready for Your Course Syllabus
+                    </h2>
+                    <p className="text-xs text-[#64748B] mt-0.5 max-w-xl">
+                      Demo data has been removed. You can upload your syllabus files (.json, .txt, .md) to auto-populate all modules, or enter the specification manually below.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsUploadOpen(true)}
+                    className="px-4 py-2 text-xs font-semibold text-white bg-[#0F2756] hover:bg-[#1E3A8A] rounded transition-colors flex items-center gap-1.5 shadow-xs"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Course Files</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Render Screen Based on Stepper */}
             {currentStep === 1 && (
               <BasicDetailsScreen
@@ -193,6 +239,7 @@ export default function App() {
                 onChange={handleMetadataChange}
                 currentRole={currentRole}
                 status={courseData.status}
+                onOpenUpload={() => setIsUploadOpen(true)}
               />
             )}
 
@@ -317,6 +364,14 @@ export default function App() {
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
         courseData={courseData}
+      />
+
+      {/* Upload Course Files & Syllabus Modal */}
+      <UploadCourseModal
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        onApplyCourse={handleApplyUploadedCourse}
+        onResetToBlank={handleResetToBlank}
       />
     </div>
   );

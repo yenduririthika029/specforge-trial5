@@ -189,6 +189,7 @@ export default function SyllabusUnitsScreen({
                 disabled={isReadOnly}
                 value={activeUnit.title}
                 onChange={(e) => handleUpdateActiveUnit('title', e.target.value)}
+                placeholder={`Enter ${activeUnit.unitRoman} Title (e.g. Foundations & System Models)`}
                 className="w-full px-3 py-1.5 font-serif text-base font-bold bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
               />
             </div>
@@ -200,10 +201,10 @@ export default function SyllabusUnitsScreen({
             </label>
             <input
               type="number"
-              min={1}
-              max={30}
+              min={0}
+              max={60}
               disabled={isReadOnly}
-              value={activeUnit.contactHours}
+              value={activeUnit.contactHours || 0}
               onChange={(e) => handleUpdateActiveUnit('contactHours', Number(e.target.value))}
               className="w-full px-3 py-1.5 font-mono text-base font-bold text-center bg-white border border-[#CBD5E1] rounded text-[#0F172A] disabled:bg-[#F8FAFC]"
             />
@@ -221,6 +222,7 @@ export default function SyllabusUnitsScreen({
               disabled={isReadOnly}
               value={activeUnit.description}
               onChange={(e) => handleUpdateActiveUnit('description', e.target.value)}
+              placeholder="Provide conceptual overview and scope of this module..."
               className="w-full p-2.5 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] disabled:bg-[#F8FAFC]"
             />
           </div>
@@ -234,6 +236,7 @@ export default function SyllabusUnitsScreen({
               disabled={isReadOnly}
               value={activeUnit.pedagogy}
               onChange={(e) => handleUpdateActiveUnit('pedagogy', e.target.value)}
+              placeholder="e.g. Lectures with trace simulations, case studies, and lab sessions..."
               className="w-full p-2.5 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] disabled:bg-[#F8FAFC]"
             />
           </div>
@@ -293,30 +296,46 @@ export default function SyllabusUnitsScreen({
           )}
 
           <div className="space-y-2">
-            {activeUnit.topics.map((topic, tIdx) => (
-              <div key={tIdx} className="flex items-start gap-2">
-                <span className="w-6 h-6 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F2756] font-mono font-semibold text-xs flex items-center justify-center shrink-0 mt-1">
-                  {tIdx + 1}
-                </span>
-                <input
-                  type="text"
-                  disabled={isReadOnly}
-                  value={topic}
-                  onChange={(e) => handleUpdateTopic(tIdx, e.target.value)}
-                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
-                />
-                {!isReadOnly && activeUnit.topics.length > 2 && (
+            {activeUnit.topics.length === 0 ? (
+              <div className="p-4 border border-dashed border-[#CBD5E1] rounded text-center text-xs text-[#64748B] space-y-2 bg-[#F8FAFC]">
+                <p>No syllabus topics added for {activeUnit.unitRoman} yet.</p>
+                {!isReadOnly && (
                   <button
                     type="button"
-                    onClick={() => handleRemoveTopic(tIdx)}
-                    className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-0.5"
-                    title="Remove topic"
+                    onClick={handleAddTopic}
+                    className="px-3 py-1.5 text-xs font-semibold text-[#0F2756] bg-white border border-[#CBD5E1] rounded hover:bg-[#F1F5F9] transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    + Add First Topic
                   </button>
                 )}
               </div>
-            ))}
+            ) : (
+              activeUnit.topics.map((topic, tIdx) => (
+                <div key={tIdx} className="flex items-start gap-2">
+                  <span className="w-6 h-6 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F2756] font-mono font-semibold text-xs flex items-center justify-center shrink-0 mt-1">
+                    {tIdx + 1}
+                  </span>
+                  <input
+                    type="text"
+                    disabled={isReadOnly}
+                    value={topic}
+                    onChange={(e) => handleUpdateTopic(tIdx, e.target.value)}
+                    placeholder="Enter granular syllabus topic..."
+                    className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
+                  />
+                  {!isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTopic(tIdx)}
+                      className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-0.5"
+                      title="Remove topic"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -374,89 +393,117 @@ export default function SyllabusUnitsScreen({
         </div>
 
         <div className="divide-y divide-[#E2E8F0]">
-          {textbooks.map((book, idx) => (
-            <div key={book.id} className="py-3 flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3 flex-1">
-                <span className="w-7 h-7 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F2756] font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-1">
-                  {idx + 1}
-                </span>
+          {textbooks.length === 0 ? (
+            <div className="p-6 border border-dashed border-[#CBD5E1] rounded text-center text-xs text-[#64748B] space-y-2 bg-[#F8FAFC]">
+              <p>No prescribed textbooks or reference literature entered yet.</p>
+              {!isReadOnly && (
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleAddTextbook('Textbook')}
+                    className="px-3 py-1.5 text-xs font-semibold text-[#0F2756] bg-white border border-[#CBD5E1] rounded hover:bg-[#F1F5F9]"
+                  >
+                    + Add Textbook
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddTextbook('Reference Book')}
+                    className="px-3 py-1.5 text-xs font-semibold text-[#0F2756] bg-[#EAEDFF] border border-[#CBD5E1] rounded hover:bg-[#D5E3FD]"
+                  >
+                    + Add Reference
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            textbooks.map((book, idx) => (
+              <div key={book.id} className="py-3 flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3 flex-1">
+                  <span className="w-7 h-7 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F2756] font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-1">
+                    {idx + 1}
+                  </span>
 
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded ${
-                        book.type === 'Textbook'
-                          ? 'bg-[#EAEDFF] text-[#0F2756]'
-                          : 'bg-[#F1F5F9] text-[#515F74]'
-                      }`}
-                    >
-                      {book.type}
-                    </span>
-                    <input
-                      type="text"
-                      disabled={isReadOnly}
-                      value={book.title}
-                      onChange={(e) => handleUpdateTextbook(book.id, 'title', e.target.value)}
-                      className="font-serif font-bold text-xs text-[#0F172A] bg-transparent border-b border-transparent hover:border-[#CBD5E1] focus:border-[#0F2756] focus:outline-none flex-1 px-1 py-0.5"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
-                    <div className="md:col-span-2">
-                      <span className="text-[10px] text-[#64748B] block uppercase">Authors</span>
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded ${
+                          book.type === 'Textbook'
+                            ? 'bg-[#EAEDFF] text-[#0F2756]'
+                            : 'bg-[#F1F5F9] text-[#515F74]'
+                        }`}
+                      >
+                        {book.type}
+                      </span>
                       <input
                         type="text"
                         disabled={isReadOnly}
-                        value={book.authors}
-                        onChange={(e) => handleUpdateTextbook(book.id, 'authors', e.target.value)}
-                        className="w-full px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                        value={book.title}
+                        onChange={(e) => handleUpdateTextbook(book.id, 'title', e.target.value)}
+                        placeholder="Book Title"
+                        className="font-serif font-bold text-xs text-[#0F172A] bg-transparent border-b border-transparent hover:border-[#CBD5E1] focus:border-[#0F2756] focus:outline-none flex-1 px-1 py-0.5"
                       />
                     </div>
-                    <div>
-                      <span className="text-[10px] text-[#64748B] block uppercase">Publisher</span>
-                      <input
-                        type="text"
-                        disabled={isReadOnly}
-                        value={book.publisher}
-                        onChange={(e) => handleUpdateTextbook(book.id, 'publisher', e.target.value)}
-                        className="w-full px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#64748B] block uppercase">Year / Edition</span>
-                      <div className="flex gap-1">
-                        <input
-                          type="number"
-                          disabled={isReadOnly}
-                          value={book.year}
-                          onChange={(e) => handleUpdateTextbook(book.id, 'year', Number(e.target.value))}
-                          className="w-20 px-2 py-1 text-xs font-mono bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
-                        />
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
+                      <div className="md:col-span-2">
+                        <span className="text-[10px] text-[#64748B] block uppercase">Authors</span>
                         <input
                           type="text"
                           disabled={isReadOnly}
-                          value={book.edition}
-                          onChange={(e) => handleUpdateTextbook(book.id, 'edition', e.target.value)}
-                          className="flex-1 px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                          value={book.authors}
+                          onChange={(e) => handleUpdateTextbook(book.id, 'authors', e.target.value)}
+                          placeholder="e.g. Author Names"
+                          className="w-full px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
                         />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#64748B] block uppercase">Publisher</span>
+                        <input
+                          type="text"
+                          disabled={isReadOnly}
+                          value={book.publisher}
+                          onChange={(e) => handleUpdateTextbook(book.id, 'publisher', e.target.value)}
+                          placeholder="Publisher"
+                          className="w-full px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#64748B] block uppercase">Year / Edition</span>
+                        <div className="flex gap-1">
+                          <input
+                            type="number"
+                            disabled={isReadOnly}
+                            value={book.year}
+                            onChange={(e) => handleUpdateTextbook(book.id, 'year', Number(e.target.value))}
+                            className="w-20 px-2 py-1 text-xs font-mono bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                          />
+                          <input
+                            type="text"
+                            disabled={isReadOnly}
+                            value={book.edition}
+                            onChange={(e) => handleUpdateTextbook(book.id, 'edition', e.target.value)}
+                            placeholder="Edition"
+                            className="flex-1 px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {!isReadOnly && textbooks.length > 2 && (
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTextbook(book.id)}
-                  className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-1"
-                  title="Remove book"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          ))}
+                {!isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTextbook(book.id)}
+                    className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-1"
+                    title="Remove book"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -251,45 +251,56 @@ export default function OutcomeMatrixScreen({
             </thead>
 
             <tbody className="divide-y divide-[#E2E8F0] font-sans">
-              {courseOutcomes.map((co) => (
-                <tr key={co.id} className="hover:bg-[#F8FAFC] transition-colors">
-                  <td className="py-2 px-3 font-mono font-bold text-[#0F2756] sticky left-0 bg-white z-10 border-r border-[#CBD5E1]">
-                    {co.id}
+              {courseOutcomes.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={3 + allTargets.length}
+                    className="py-10 text-center text-xs text-[#64748B] bg-[#F8FAFC]"
+                  >
+                    No Course Outcomes formulated yet. Click &ldquo;Add Course Outcome&rdquo; below or upload a course syllabus to populate outcomes.
                   </td>
-                  <td className="py-2 px-3 text-[#334155] border-r border-[#CBD5E1] text-[11px] leading-snug">
-                    {co.description}
-                  </td>
-                  <td className="py-2 px-2 text-center border-r border-[#CBD5E1]">
-                    <span className="text-[10px] font-mono font-semibold bg-[#F1F5F9] text-[#0F172A] px-1.5 py-0.5 rounded">
-                      {co.bloomLevel}
-                    </span>
-                  </td>
-
-                  {/* Matrix Cells */}
-                  {allTargets.map((target) => {
-                    const cellKey = `${co.id}_${target.id}`;
-                    const val = (matrix[cellKey] ?? 0) as MatrixValue;
-                    return (
-                      <td
-                        key={target.id}
-                        className="p-1 text-center border-r border-[#E2E8F0] align-middle"
-                      >
-                        <button
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => handleCellClick(co.id, target.id)}
-                          title={`${co.id} -> ${target.code}: Level ${val}`}
-                          className={`w-9 h-9 mx-auto rounded text-xs font-mono tabular-nums flex items-center justify-center transition-transform active:scale-95 border border-[#CBD5E1]/60 ${getCellColor(
-                            val
-                          )} ${isReadOnly ? 'cursor-default' : 'hover:ring-1 hover:ring-[#0F2756]'}`}
-                        >
-                          {val === 0 ? '-' : val}
-                        </button>
-                      </td>
-                    );
-                  })}
                 </tr>
-              ))}
+              ) : (
+                courseOutcomes.map((co) => (
+                  <tr key={co.id} className="hover:bg-[#F8FAFC] transition-colors">
+                    <td className="py-2 px-3 font-mono font-bold text-[#0F2756] sticky left-0 bg-white z-10 border-r border-[#CBD5E1]">
+                      {co.id}
+                    </td>
+                    <td className="py-2 px-3 text-[#334155] border-r border-[#CBD5E1] text-[11px] leading-snug">
+                      {co.description}
+                    </td>
+                    <td className="py-2 px-2 text-center border-r border-[#CBD5E1]">
+                      <span className="text-[10px] font-mono font-semibold bg-[#F1F5F9] text-[#0F172A] px-1.5 py-0.5 rounded">
+                        {co.bloomLevel}
+                      </span>
+                    </td>
+
+                    {/* Matrix Cells */}
+                    {allTargets.map((target) => {
+                      const cellKey = `${co.id}_${target.id}`;
+                      const val = (matrix[cellKey] ?? 0) as MatrixValue;
+                      return (
+                        <td
+                          key={target.id}
+                          className="p-1 text-center border-r border-[#E2E8F0] align-middle"
+                        >
+                          <button
+                            type="button"
+                            disabled={isReadOnly}
+                            onClick={() => handleCellClick(co.id, target.id)}
+                            title={`${co.id} -> ${target.code}: Level ${val}`}
+                            className={`w-9 h-9 mx-auto rounded text-xs font-mono tabular-nums flex items-center justify-center transition-transform active:scale-95 border border-[#CBD5E1]/60 ${getCellColor(
+                              val
+                            )} ${isReadOnly ? 'cursor-default' : 'hover:ring-1 hover:ring-[#0F2756]'}`}
+                          >
+                            {val === 0 ? '-' : val}
+                          </button>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))
+              )}
             </tbody>
 
             {/* Averages Row */}
@@ -360,60 +371,77 @@ export default function OutcomeMatrixScreen({
         </div>
 
         <div className="space-y-3">
-          {courseOutcomes.map((co) => (
-            <div
-              key={co.id}
-              className="p-3 bg-[#F8FAFC] border border-[#CBD5E1] rounded flex items-start gap-3"
-            >
-              <span className="w-8 h-8 rounded bg-[#0F2756] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                {co.id}
-              </span>
-
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    disabled={isReadOnly}
-                    value={co.code}
-                    onChange={(e) => handleUpdateCO(co.id, 'code', e.target.value)}
-                    className="w-24 px-2 py-1 text-xs font-mono font-bold bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
-                  />
-                  <select
-                    disabled={isReadOnly}
-                    value={co.bloomLevel}
-                    onChange={(e) => handleUpdateCO(co.id, 'bloomLevel', e.target.value)}
-                    className="px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
-                  >
-                    <option value="K1 - Remember">K1 - Remember</option>
-                    <option value="K2 - Understand">K2 - Understand</option>
-                    <option value="K3 - Apply">K3 - Apply</option>
-                    <option value="K4 - Analyze">K4 - Analyze</option>
-                    <option value="K5 - Evaluate">K5 - Evaluate</option>
-                    <option value="K6 - Create">K6 - Create</option>
-                  </select>
-                </div>
-
-                <textarea
-                  rows={2}
-                  disabled={isReadOnly}
-                  value={co.description}
-                  onChange={(e) => handleUpdateCO(co.id, 'description', e.target.value)}
-                  className="w-full p-2 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
-                />
-              </div>
-
-              {!isReadOnly && courseOutcomes.length > 3 && (
+          {courseOutcomes.length === 0 ? (
+            <div className="p-6 border border-dashed border-[#CBD5E1] rounded text-center text-xs text-[#64748B] space-y-2 bg-[#F8FAFC]">
+              <p>No Course Outcomes defined yet.</p>
+              {!isReadOnly && (
                 <button
                   type="button"
-                  onClick={() => handleRemoveCO(co.id)}
-                  className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-0.5"
-                  title="Remove Course Outcome"
+                  onClick={handleAddCO}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-[#0F2756] bg-white border border-[#CBD5E1] rounded hover:bg-[#F1F5F9] transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  + Add First Course Outcome (CO-1)
                 </button>
               )}
             </div>
-          ))}
+          ) : (
+            courseOutcomes.map((co) => (
+              <div
+                key={co.id}
+                className="p-3 bg-[#F8FAFC] border border-[#CBD5E1] rounded flex items-start gap-3"
+              >
+                <span className="w-8 h-8 rounded bg-[#0F2756] text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                  {co.id}
+                </span>
+
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      disabled={isReadOnly}
+                      value={co.code}
+                      onChange={(e) => handleUpdateCO(co.id, 'code', e.target.value)}
+                      placeholder="e.g. CO.1"
+                      className="w-24 px-2 py-1 text-xs font-mono font-bold bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                    />
+                    <select
+                      disabled={isReadOnly}
+                      value={co.bloomLevel}
+                      onChange={(e) => handleUpdateCO(co.id, 'bloomLevel', e.target.value)}
+                      className="px-2 py-1 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A]"
+                    >
+                      <option value="K1 - Remember">K1 - Remember</option>
+                      <option value="K2 - Understand">K2 - Understand</option>
+                      <option value="K3 - Apply">K3 - Apply</option>
+                      <option value="K4 - Analyze">K4 - Analyze</option>
+                      <option value="K5 - Evaluate">K5 - Evaluate</option>
+                      <option value="K6 - Create">K6 - Create</option>
+                    </select>
+                  </div>
+
+                  <textarea
+                    rows={2}
+                    disabled={isReadOnly}
+                    value={co.description}
+                    onChange={(e) => handleUpdateCO(co.id, 'description', e.target.value)}
+                    placeholder="Formulate measurable outcome using action verb (e.g., 'Implement distributed consensus algorithms...')"
+                    className="w-full p-2 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
+                  />
+                </div>
+
+                {!isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCO(co.id)}
+                    className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-0.5"
+                    title="Remove Course Outcome"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

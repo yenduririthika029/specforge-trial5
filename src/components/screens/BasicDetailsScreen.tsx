@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { CourseMetadata, ReviewStatus, UserRole } from '../../types';
 import { requestAIAcademicAssistance } from '../../api';
-import { BookOpen, Sparkles, Plus, Trash2, CheckCircle2, Lock } from 'lucide-react';
+import { BookOpen, Sparkles, Plus, Trash2, CheckCircle2, Lock, Upload, FileText } from 'lucide-react';
 
 interface BasicDetailsScreenProps {
   metadata: CourseMetadata;
   onChange: (updated: CourseMetadata) => void;
   currentRole: UserRole;
   status: ReviewStatus;
+  onOpenUpload?: () => void;
 }
 
 export default function BasicDetailsScreen({
@@ -15,6 +16,7 @@ export default function BasicDetailsScreen({
   onChange,
   currentRole,
   status,
+  onOpenUpload,
 }: BasicDetailsScreenProps) {
   const isReadOnly = (currentRole === 'Reviewer') || status === 'BOS_LOCKED';
   const [aiLoading, setAiLoading] = useState(false);
@@ -101,6 +103,33 @@ export default function BasicDetailsScreen({
         )}
       </div>
 
+      {/* Upload Course Files Prompt Banner */}
+      {(!metadata.courseCode || !metadata.courseTitle) && onOpenUpload && (
+        <div className="p-4 bg-[#EAEDFF] border border-[#CBD5E1] rounded flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded bg-[#0F2756] text-white flex items-center justify-center shrink-0">
+              <Upload className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-serif font-bold text-[#0F172A]">
+                Have a syllabus document or course specification file?
+              </div>
+              <p className="text-[11px] text-[#334155]">
+                Upload JSON, Markdown, or plain text syllabus files to automatically populate all units, topics, and course metadata.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenUpload}
+            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0F2756] hover:bg-[#1E3A8A] rounded transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload Course File</span>
+          </button>
+        </div>
+      )}
+
       {/* Primary Specification Panel */}
       <div className="bg-white border border-[#CBD5E1] rounded shadow-xs p-6 space-y-6">
         <h2 className="font-serif text-base font-bold text-[#0F172A] pb-2 border-b border-[#E2E8F0]">
@@ -118,6 +147,7 @@ export default function BasicDetailsScreen({
               disabled={isReadOnly}
               value={metadata.courseCode}
               onChange={(e) => onChange({ ...metadata, courseCode: e.target.value })}
+              placeholder="e.g. CS-401 or ME-202"
               className="w-full px-3 py-2 text-xs font-mono font-semibold bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
             />
           </div>
@@ -132,6 +162,7 @@ export default function BasicDetailsScreen({
               disabled={isReadOnly}
               value={metadata.academicRegulation}
               onChange={(e) => onChange({ ...metadata, academicRegulation: e.target.value })}
+              placeholder="e.g. R-2024 (NEP Aligned)"
               className="w-full px-3 py-2 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
             />
           </div>
@@ -147,6 +178,7 @@ export default function BasicDetailsScreen({
                 disabled={isReadOnly}
                 value={metadata.academicYear}
                 onChange={(e) => onChange({ ...metadata, academicYear: e.target.value })}
+                placeholder="2026-2027"
                 className="w-full px-2 py-2 text-xs font-mono bg-white border border-[#CBD5E1] rounded text-[#0F172A] disabled:bg-[#F8FAFC]"
               />
               <select
@@ -175,6 +207,7 @@ export default function BasicDetailsScreen({
             disabled={isReadOnly}
             value={metadata.courseTitle}
             onChange={(e) => onChange({ ...metadata, courseTitle: e.target.value })}
+            placeholder="e.g. Distributed Systems & Cloud Infrastructure"
             className="w-full px-3 py-2 text-sm font-serif font-semibold bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
           />
         </div>
@@ -190,6 +223,7 @@ export default function BasicDetailsScreen({
               disabled={isReadOnly}
               value={metadata.department}
               onChange={(e) => onChange({ ...metadata, department: e.target.value })}
+              placeholder="e.g. Department of Computer Science & Engineering"
               className="w-full px-3 py-2 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] disabled:bg-[#F8FAFC]"
             />
           </div>
@@ -408,30 +442,46 @@ export default function BasicDetailsScreen({
         )}
 
         <div className="space-y-2.5">
-          {metadata.courseObjectives.map((obj, idx) => (
-            <div key={idx} className="flex items-start gap-2.5">
-              <span className="w-6 h-6 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F2756] font-mono font-semibold text-xs flex items-center justify-center shrink-0 mt-1">
-                {idx + 1}
-              </span>
-              <input
-                type="text"
-                disabled={isReadOnly}
-                value={obj}
-                onChange={(e) => handleUpdateObjective(idx, e.target.value)}
-                className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
-              />
-              {!isReadOnly && metadata.courseObjectives.length > 1 && (
+          {metadata.courseObjectives.length === 0 ? (
+            <div className="p-4 border border-dashed border-[#CBD5E1] rounded text-center text-xs text-[#64748B] space-y-2 bg-[#F8FAFC]">
+              <p>No educational objectives specified yet.</p>
+              {!isReadOnly && (
                 <button
                   type="button"
-                  onClick={() => handleRemoveObjective(idx)}
-                  className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-0.5"
-                  title="Remove objective"
+                  onClick={handleAddObjective}
+                  className="px-3 py-1.5 text-xs font-semibold text-[#0F2756] bg-white border border-[#CBD5E1] rounded hover:bg-[#F1F5F9] transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  + Add First Objective
                 </button>
               )}
             </div>
-          ))}
+          ) : (
+            metadata.courseObjectives.map((obj, idx) => (
+              <div key={idx} className="flex items-start gap-2.5">
+                <span className="w-6 h-6 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F2756] font-mono font-semibold text-xs flex items-center justify-center shrink-0 mt-1">
+                  {idx + 1}
+                </span>
+                <input
+                  type="text"
+                  disabled={isReadOnly}
+                  value={obj}
+                  onChange={(e) => handleUpdateObjective(idx, e.target.value)}
+                  placeholder="State measurable course objective..."
+                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#CBD5E1] rounded text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0F2756] disabled:bg-[#F8FAFC]"
+                />
+                {!isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveObjective(idx)}
+                    className="p-1.5 text-[#64748B] hover:text-[#B91C1C] rounded mt-0.5"
+                    title="Remove objective"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

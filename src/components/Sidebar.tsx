@@ -70,17 +70,19 @@ export default function Sidebar({
             Course Specification
           </div>
           <div className="font-serif text-sm font-bold text-[#0F172A] leading-snug line-clamp-2">
-            {metadata.courseTitle}
+            {metadata.courseTitle || 'New Course Specification'}
           </div>
           <div className="mt-2.5 pt-2 border-t border-[#E2E8F0] grid grid-cols-2 gap-2 text-[11px]">
             <div>
               <span className="text-[#64748B] block">Code:</span>
-              <span className="font-mono font-semibold text-[#0F172A]">{metadata.courseCode}</span>
+              <span className="font-mono font-semibold text-[#0F172A]">
+                {metadata.courseCode || 'Unset'}
+              </span>
             </div>
             <div>
               <span className="text-[#64748B] block">Credits:</span>
               <span className="font-mono font-semibold text-[#0F172A]">
-                {metadata.totalCredits}.0 ({metadata.lectureHours}-{metadata.tutorialHours}-{metadata.practicalHours})
+                {metadata.totalCredits || 0}.0 ({metadata.lectureHours}-{metadata.tutorialHours}-{metadata.practicalHours})
               </span>
             </div>
           </div>
